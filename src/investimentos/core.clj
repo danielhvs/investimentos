@@ -1,27 +1,31 @@
 (ns investimentos.core
-  (:require [clojure.math.numeric-tower :as math])
+  (:require [clojure.math.numeric-tower :as math]
+            [clojure.pprint :refer :all])
   (:gen-class))
 
 (defn montante [dados]
-  (let [capitalInicial (* (:capitalInicial dados) (math/expt  (+ 1 (/ (:taxa dados) 100)) (:tempo dados)))]
-    {:capitalInicial capitalInicial :taxa (:taxa dados) :tempo (:tempo dados)}))
+  (let [montante (* (:montante dados) (math/expt  (+ 1 (/ (:taxa dados) 100)) (:tempo dados)))]
+    {:montante montante :taxa (:taxa dados) :tempo (:tempo dados)}))
+
+(defn inc-tempo [dados]
+  (assoc dados :tempo (inc (:tempo dados))))
 
 (defn soma-montantes [m1 m2]
-  (assoc m2 :capitalInicial (+ (:capitalInicial m1) (:capitalInicial m2))))
+  (assoc m2 :montante (+ (:montante m1) (:montante m2))))
 
-(comment errado ainda. falta somar os montantes e fazer novo montante)
 (defn montante-com-aportes [dados n]
-  (let [m1 (soma-montantes (montante dados) dados)
-        m2 (soma-montantes (montante m1) m1)]
-    m2))
+  (let [aplicacoes (take n (iterate inc-tempo dados))]
+    (map montante aplicacoes)))
 
-(comment montante
- (soma-montantes dados (montante dados)))
+(defn soma-montantes [seq-dados]
+  (reduce + (map :montante seq-dados)))
 
-(def aplicacao {:taxa 10.00 :capitalInicial 100000.00 :tempo 26})
-(def aporte {:taxa (/ 10.00 1) :capitalInicial 100.00 :tempo 1})
+(def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
+(def aporte {:taxa (/ 5.00 12.0) :montante 250.00 :tempo 1})
 
 (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
-  (println (montante-com-aportes aporte 3)))
+  (let [seq-montantes (montante-com-aportes aporte (* 25 12))]
+    (pprint seq-montantes)
+    (pprint (soma-montantes seq-montantes))
+    (pprint (montante aplicacao))))
