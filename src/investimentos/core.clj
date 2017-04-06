@@ -21,11 +21,12 @@
   (reduce + (map :montante seq-dados)))
 
 (def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
-(def aporte {:taxa (/ 5.00 12.0) :montante 250.00 :tempo 1})
+(def aporte {:taxa 0.4167 :montante 500.00 :tempo 1})
 
 (defn -main
   [& args]
-  (let [seq-montantes (montante-com-aportes aporte (* 25 12))]
+  (let [seq-montantes (montante-com-aportes aporte (* 35 12))
+        m (soma-montantes seq-montantes)]
     (pprint seq-montantes)
-    (pprint (soma-montantes seq-montantes))
-    (pprint (montante aplicacao))))
+    (pprint m)
+    (pprint (str "rendimento mensal: " (- (:montante (montante {:taxa 0.4167 :montante m :tempo 1})) m)) )))
