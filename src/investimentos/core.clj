@@ -5,6 +5,28 @@
 )
   (:gen-class))
 
+;; define abs & power to avoid needing to bring in the clojure Math library
+(defn abs [x]
+  " Absolute value"
+  (if (< x 0) (- x) x))
+ 
+(defn power [x n]
+  " x to power n, where n = 0, 1, 2, ... "
+  (apply * (repeat n x)))
+ 
+(defn calc-delta [A x n]
+  " nth rooth algorithm delta calculation "
+  (/ (- (/ A (power x (- n 1))) x) n))
+ 
+(defn nth-root
+  " nth root of algorithm: A = numer, n = root"
+  ([A n] (nth-root A n 0.5 1.0))  ; Takes only two arguments A, n and calls version which takes A, n, guess-prev, guess-current
+  ([A n guess-prev guess-current] ; version take takes in four arguments (A, n, guess-prev, guess-current)
+   (if (< (abs (- guess-prev guess-current)) 1e-6)
+     guess-current
+     (recur A n guess-current (+ guess-current (calc-delta A guess-current n)))))) ; iterate answer using tail recursion
+
+
 ;(import java.util.Locale)
 ;(defn reais [valor] (amount-of cu/BRL valor) (Locale. "pt" "BR"))
 
@@ -52,11 +74,16 @@
     (filter #(= maior-rendimento (calcula-rendimento %)) seq-dados)
     ))
 
+(defn percentual-cdi-diario [taxa]
+  (/ (* cdi (/ taxa 100)) 365.0))
+
 (def cdi 10.0)
 (def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
 (def aporte {:taxa 0.4167 :montante 500.00 :tempo 1})
-(def lca {:taxa (/ (* cdi (/ 80 100)) 365.0) :montante 100000.00 :tempo 361 :ir false :tipo "lca"})
-(def cdb {:taxa (/ (* cdi (/ 118 100)) 365.0) :montante 100000.00 :tempo 360 :ir true :tipo "cdb"})
+(def lca {:taxa (percentual-cdi-diario 100) :montante 5000.00 :tempo 720 :ir false :tipo "lca"})
+(def cdb {:taxa (percentual-cdi-diario 115) :montante 5000.00 :tempo 720 :ir true :tipo "cdb pine"})
+(def lca2 {:taxa (percentual-cdi-diario 100) :montante 5000.00 :tempo 180 :ir false :tipo "lca"})
+(def cdb2 {:taxa (percentual-cdi-diario 122.5) :montante 5000.00 :tempo 180 :ir true :tipo "cdb teste"})
 
 (defn -main
   [& args]
@@ -66,6 +93,26 @@
     (pprint m)
     (pprint (str "rendimento mensal: " (- (:montante (montante {:taxa 0.4167 :montante m :tempo 1})) m)) )))
 
+(defn calcula-taxa-equivalente [isento com-ir]
+  (let [
+        imposto (ir (:tempo com-ir))
+        c (:montante com-ir)
+        f (fator com-ir)
+        x (- (* (math/expt f 2) imposto))
+        y (* c f)
+        z (- (* c f imposto))
+        ]
+    (- (nth-root 
+        (+ x y z) 
+        (:tempo com-ir)) 
+       1.0)))
+
 (calcula-rendimento lca)
 (calcula-rendimento cdb)
 (calcula-melhor [lca cdb])
+
+(calcula-rendimento lca2)
+(calcula-rendimento cdb2)
+
+(percentual-cdi-diario 85)
+(calcula-taxa-equivalente lca cdb)
