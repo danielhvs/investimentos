@@ -80,13 +80,15 @@
 
 (def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
 (def aporte {:taxa 0.4167 :montante 500.00 :tempo 1})
-(def lca {:taxa (percentual-cdi-diario 86.25) :montante 5000.00 :tempo 720 :ir false :tipo "lca"})
-(def cdb {:taxa (percentual-cdi-diario 114) :montante 5000.00 :tempo 720 :ir true :tipo "cdb pine"})
+(def lca {:taxa (percentual-cdi-diario 85.77) :montante 5000.00 :tempo 180 :ir false :tipo "lca"})
+(def cdb2anos {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 720) :ir true :tipo "cdb2anos"})
+(def cdb6meses {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 180) :ir true :tipo "cdb6meses"})
+(def cdb5anos {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 5 365) :ir true :tipo "cdb5anos"})
 
 (defn quase-igual [x y]
   (do
     (if (or (< x 0) (< y 0)) (throw (Exception. "x ou y negativo")))
-    (< (abs (- x y)) 1)))
+    (< (abs (- x y)) 0.01)))
 
 (defn -main
   [& args]
@@ -105,14 +107,12 @@
         (let [taxa-eq (* 100 (/ (* 365 (:taxa chute)) cdi))]
           (do (pprint (str (format "%.2f" taxa-eq) "% CDI"))
               taxa-eq))
-        (recur (assoc chute :taxa (- (:taxa chute) (* 0.0005 percentual-diario) )))))))
+        (recur (assoc chute :taxa (- (:taxa chute) (* 0.000005 percentual-diario) )))))))
 
+(calcula-melhor [lca cdb5anos cdb6meses cdb2anos])
+
+(calcula-rendimento cdb6meses)
 (calcula-rendimento lca)
-(calcula-rendimento cdb)
-(calcula-melhor [lca cdb])
-
-(calcula-rendimento cdb)
-(calcula-rendimento lca)
-(calcula-taxa-eq cdb)
-
-
+(calcula-taxa-eq cdb6meses)
+(calcula-taxa-eq cdb5anos)
+(calcula-taxa-eq cdb2anos)
