@@ -80,10 +80,13 @@
 
 (def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
 (def aporte {:taxa 0.4167 :montante 500.00 :tempo 1})
-(def lca {:taxa (percentual-cdi-diario 100) :montante 5000.00 :tempo 720 :ir false :tipo "lca"})
-(def cdb {:taxa (percentual-cdi-diario 115) :montante 5000.00 :tempo 720 :ir true :tipo "cdb pine"})
-(def lca2 {:taxa (percentual-cdi-diario 100) :montante 5000.00 :tempo 180 :ir false :tipo "lca"})
-(def cdb2 {:taxa (percentual-cdi-diario 122.5) :montante 5000.00 :tempo 180 :ir true :tipo "cdb teste"})
+(def lca {:taxa (percentual-cdi-diario 86.25) :montante 5000.00 :tempo 720 :ir false :tipo "lca"})
+(def cdb {:taxa (percentual-cdi-diario 114) :montante 5000.00 :tempo 720 :ir true :tipo "cdb pine"})
+
+(defn quase-igual [x y]
+  (do
+    (if (or (< x 0) (< y 0)) (throw (Exception. "x ou y negativo")))
+    (< (abs (- x y)) 1)))
 
 (defn -main
   [& args]
@@ -93,29 +96,23 @@
     (pprint m)
     (pprint (str "rendimento mensal: " (- (:montante (montante {:taxa 0.4167 :montante m :tempo 1})) m)) )))
 
-(defn calcula-taxa-equivalente [isento com-ir]
-  (let [
-        imposto (ir (:tempo com-ir))
-        c (:montante com-ir)
-        f (fator com-ir)
-        x (- (* (math/expt f 2) imposto))
-        y (* c f)
-        z (- (* c f imposto))
-        ]
-    (pprint imposto)
-    (pprint c)
-    (pprint f)
-    (- (nth-root 
-        (+ x y z) 
-        (:tempo com-ir)) 
-       1.0)))
+(defn calcula-taxa-eq [com-ir]
+  (let [percentual-diario (percentual-cdi-diario 100)
+        isento (assoc com-ir :ir false)
+        juros (calcula-rendimento com-ir)]
+    (loop [chute (assoc isento :taxa percentual-diario :tempo (:tempo com-ir))]
+      (if (quase-igual juros (calcula-rendimento chute))
+        (let [taxa-eq (* 100 (/ (* 365 (:taxa chute)) cdi))]
+          (do (pprint (str (format "%.2f" taxa-eq) "% CDI"))
+              taxa-eq))
+        (recur (assoc chute :taxa (- (:taxa chute) (* 0.0005 percentual-diario) )))))))
 
 (calcula-rendimento lca)
 (calcula-rendimento cdb)
 (calcula-melhor [lca cdb])
 
-(calcula-rendimento lca2)
-(calcula-rendimento cdb2)
+(calcula-rendimento cdb)
+(calcula-rendimento lca)
+(calcula-taxa-eq cdb)
 
-(percentual-cdi-diario 85)
-(calcula-taxa-equivalente lca cdb)
+
