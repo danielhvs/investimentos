@@ -74,10 +74,10 @@
     (filter #(= maior-rendimento (calcula-rendimento %)) seq-dados)
     ))
 
+(def cdi 10.0)
 (defn percentual-cdi-diario [taxa]
   (/ (* cdi (/ taxa 100)) 365.0))
 
-(def cdi 10.0)
 (def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
 (def aporte {:taxa 0.4167 :montante 500.00 :tempo 1})
 (def lca {:taxa (percentual-cdi-diario 100) :montante 5000.00 :tempo 720 :ir false :tipo "lca"})
@@ -102,6 +102,9 @@
         y (* c f)
         z (- (* c f imposto))
         ]
+    (pprint imposto)
+    (pprint c)
+    (pprint f)
     (- (nth-root 
         (+ x y z) 
         (:tempo com-ir)) 
