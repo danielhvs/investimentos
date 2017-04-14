@@ -50,7 +50,7 @@
 (defn soma-montantes [seq-dados]
   (reduce + (map :montante seq-dados)))
 
-(defn ir [t]
+(defn fator-ir [t]
   (cond 
    (<= t 180) 0.225
    (<= t 360) 0.200
@@ -62,11 +62,18 @@
 (defn rendimento [dados]
   (* (:montante dados) (- (fator dados) 1)))
 
-(defn rendimento-com-ir [dados]
-  (* (rendimento dados) (- 1 (ir (:tempo dados)))))
+(defn sem-ir [dados] 0)
+
+(defn ir [dados]
+  (let [r (rendimento dados)]
+    (* r (fator-ir (:tempo dados)))))
 
 (defn calcula-rendimento [dados]
-  (if (:ir dados) (rendimento-com-ir dados) (rendimento dados)))
+  (let [r (rendimento dados)
+        imposto ((:ir dados) dados)
+        taxaMontante (* (:montante (montante dados)) (:tempo dados) (:taxaMontante dados))]
+    (pprint (str "r=" r " imposto=" imposto " taxaMontante=" taxaMontante))
+    (- r imposto taxaMontante)))
 
 (defn calcula-melhor [seq-dados]
   (let [rendimentos (map calcula-rendimento seq-dados)
@@ -74,17 +81,19 @@
     (filter #(= maior-rendimento (calcula-rendimento %)) seq-dados)
     ))
 
-(def cdi 10.0)
+; cdi ~ selic
+(def cdi 14.13)
 (defn percentual-cdi-diario [taxa]
   (/ (* cdi (/ taxa 100)) 365.0))
 
+; tempo sempre em dias
 (def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
 (def aporte {:taxa 0.4167 :montante 500.00 :tempo 1})
-(def lca {:taxa (percentual-cdi-diario 85.7385) :montante 5000.00 :tempo 180 :ir false :tipo "lca"})
-(def cdb2anos {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 720) :ir true :tipo "cdb2anos"})
-(def cdb6meses {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 180) :ir true :tipo "cdb6meses"})
-(def cdb5anos {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 5 365) :ir true :tipo "cdb5anos"})
-
+(def lca {:taxa (percentual-cdi-diario 87) :montante 50000.00 :tempo (* 2 365) :ir sem-ir :taxaMontante 0 :tipo "lca"})
+(def cdb2anos {:taxa (percentual-cdi-diario 110) :montante 50000.00 :tempo (* 720) :ir ir :taxaMontante 0 :tipo "cdb2anos"})
+(def cdb6meses {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 180) :ir ir :taxaMontante 0 :tipo "cdb6meses"})
+(def cdb5anos {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 5 365) :ir ir :taxaMontante 0 :tipo "cdb5anos"})
+(def selic2anos {:taxa (percentual-cdi-diario 100) :montante 50000 :tempo (* 2 365) :ir ir :taxaMontante (/ 0.0030 365) :tipo "tesouro selic"})
 (defn quase-igual [x y]
   (do
     (if (or (< x 0) (< y 0)) (throw (Exception. "x ou y negativo")))
@@ -101,7 +110,7 @@
 ; metodo numerico
 (defn calcula-taxa-eq [com-ir]
   (let [percentual-diario (percentual-cdi-diario 100)
-        isento (assoc com-ir :ir false)
+        isento (assoc com-ir :ir sem-ir)
         juros (calcula-rendimento com-ir)]
     (loop [chute (assoc isento :taxa percentual-diario :tempo (:tempo com-ir))]
       (if (quase-igual juros (calcula-rendimento chute))
@@ -113,7 +122,7 @@
 ; metodo analitico
 (defn calcula-tx-eq [com-ir]
   (let [
-        i (ir (:tempo com-ir))
+        i (fator-ir (:tempo com-ir))
         c (:montante com-ir)
         f (fator com-ir)
         x (+ f 
@@ -128,15 +137,15 @@
       (do (pprint (str (format "%.2f" taxa-eq) "% CDI"))
           taxa-eq))))
 
-(calcula-melhor [lca cdb5anos cdb6meses cdb2anos])
-(calcula-rendimento cdb6meses)
-(calcula-rendimento lca)
 
-(calcula-taxa-eq cdb6meses)
-(calcula-tx-eq cdb6meses)
+;  (calcula-melhor [lca cdb5anos cdb6meses cdb2anos])
+;  (calcula-rendimento cdb2anos)
+;  (calcula-rendimento lca)
+;  (calcula-rendimento selic2anos)
+;  (calcula-taxa-eq cdb6meses)
+;  (calcula-tx-eq cdb6meses)
+;  (calcula-taxa-eq cdb5anos)
+;  (calcula-tx-eq cdb5anos)
+;  (calcula-taxa-eq cdb2anos)
+;  (calcula-tx-eq cdb2anos)
 
-(calcula-taxa-eq cdb5anos)
-(calcula-tx-eq cdb5anos)
-
-(calcula-taxa-eq cdb2anos)
-(calcula-tx-eq cdb2anos)
