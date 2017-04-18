@@ -72,7 +72,6 @@
   (let [r (rendimento dados)
         imposto ((:ir dados) dados)
         taxaMontante (* (:montante (montante dados)) (:tempo dados) (:taxaMontante dados))]
-    (pprint (str "r=" r " imposto=" imposto " taxaMontante=" taxaMontante))
     (- r imposto taxaMontante)))
 
 (defn calcula-melhor [seq-dados]
@@ -82,15 +81,18 @@
     ))
 
 ; cdi ~ selic
-(def cdi 14.13)
+(def cdi 11.5)
 (defn percentual-cdi-diario [taxa]
   (/ (* cdi (/ taxa 100)) 365.0))
 
 ; tempo sempre em dias
 (def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
 (def aporte {:taxa 0.4167 :montante 500.00 :tempo 1})
-(def lca {:taxa (percentual-cdi-diario 87) :montante 50000.00 :tempo (* 2 365) :ir sem-ir :taxaMontante 0 :tipo "lca"})
-(def cdb2anos {:taxa (percentual-cdi-diario 110) :montante 50000.00 :tempo (* 720) :ir ir :taxaMontante 0 :tipo "cdb2anos"})
+(def aporte {:taxa 0.7 :montante 100.00 :tempo 1})
+(def lca {:taxa (percentual-cdi-diario 87) :montante 50000 :tempo (* 365) :ir sem-ir :taxaMontante 0 :tipo "lca"})
+(def cdb-diario {:taxa (percentual-cdi-diario 101) :montante 50000.00 :tempo (* 60) :ir ir :taxaMontante 0 :tipo "cdb-diario"})
+(def cdb2anos {:taxa (percentual-cdi-diario 114) :montante 30000.00 :tempo (* 725) :ir ir :taxaMontante 0 :tipo "cdb2anos"})
+(def cdb1ano {:taxa (percentual-cdi-diario 109) :montante 50000.00 :tempo (* 365) :ir ir :taxaMontante 0 :tipo "cdb1ano"})
 (def cdb6meses {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 180) :ir ir :taxaMontante 0 :tipo "cdb6meses"})
 (def cdb5anos {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 5 365) :ir ir :taxaMontante 0 :tipo "cdb5anos"})
 (def selic2anos {:taxa (percentual-cdi-diario 100) :montante 50000 :tempo (* 2 365) :ir ir :taxaMontante (/ 0.0030 365) :tipo "tesouro selic"})
@@ -140,7 +142,10 @@
 
 ;  (calcula-melhor [lca cdb5anos cdb6meses cdb2anos])
 ;  (calcula-rendimento cdb2anos)
-;  (calcula-rendimento lca)
+(calcula-rendimento lca)
+(calcula-rendimento cdb2anos)
+(calcula-rendimento cdb1ano)
+(- (calcula-rendimento (assoc lca :taxa (percentual-cdi-diario 78))) (calcula-rendimento lca))
 ;  (calcula-rendimento selic2anos)
 ;  (calcula-taxa-eq cdb6meses)
 ;  (calcula-tx-eq cdb6meses)
@@ -148,4 +153,9 @@
 ;  (calcula-tx-eq cdb5anos)
 ;  (calcula-taxa-eq cdb2anos)
 ;  (calcula-tx-eq cdb2anos)
+(calcula-tx-eq cdb2anos)
+(calcula-tx-eq cdb1ano)
+(calcula-tx-eq (assoc cdb-diario :tempo 181))
+(calcula-tx-eq (assoc cdb-diario :tempo 361))
+(calcula-tx-eq (assoc cdb-diario :tempo 721))
 
