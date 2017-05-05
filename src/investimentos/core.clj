@@ -139,23 +139,23 @@
       (do (pprint (str (format "%.2f" taxa-eq) "% CDI"))
           taxa-eq))))
 
+  (defn tx-eq-maior-menor "exemplo: menor = 1.6 significa 1.6% = 0.016. n é quantos quantidade de tempo. exemplo: se é em meses, n = 12 significa comparar taxa mensal com anual"
+    [maior n]
+    (* 100 
+       (dec (power (+ 1 (/ maior 100))
+                   (/ 1 n)))))
+
+  (defn tx-eq-menor-maior "exemplo: menor = 1.6 significa 1.6% = 0.016. n é quantos quantidade de tempo. exemplo: se é em meses, n = 12 significa comparar taxa mensal com anual"
+    [menor n]
+    (* 100 
+       (dec (power (+ 1 (/ menor 100))
+                   n))))
+
 
 ;  (calcula-melhor [lca cdb5anos cdb6meses cdb2anos])
 ;  (calcula-rendimento cdb2anos)
-(calcula-rendimento lca)
-(calcula-rendimento cdb2anos)
-(calcula-rendimento cdb1ano)
-(- (calcula-rendimento (assoc lca :taxa (percentual-cdi-diario 78))) (calcula-rendimento lca))
 ;  (calcula-rendimento selic2anos)
 ;  (calcula-taxa-eq cdb6meses)
 ;  (calcula-tx-eq cdb6meses)
-;  (calcula-taxa-eq cdb5anos)
-;  (calcula-tx-eq cdb5anos)
-;  (calcula-taxa-eq cdb2anos)
-;  (calcula-tx-eq cdb2anos)
-(calcula-tx-eq cdb2anos)
-(calcula-tx-eq cdb1ano)
-(calcula-tx-eq (assoc cdb-diario :tempo 181))
-(calcula-tx-eq (assoc cdb-diario :tempo 361))
-(calcula-tx-eq (assoc cdb-diario :tempo 721))
+;  (tx-eq-menor-maior 6.84 2)
 
