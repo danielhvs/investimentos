@@ -80,8 +80,25 @@
     (filter #(= maior-rendimento (calcula-rendimento %)) seq-dados)
     ))
 
+(defn montantes-discretos [dados]
+  (loop [montante-discreto dados
+         proximo-dado (montante (assoc montante-discreto :tempo 1))
+         iteracao 1
+         acumulado []]
+    (if (= iteracao (:tempo dados))
+      acumulado
+      (recur 
+       proximo-dado
+       (montante (assoc proximo-dado :tempo 1))
+       (inc iteracao)
+       (conj acumulado proximo-dado)))))
+
+(defn consolida-montantes-discretos [dados]
+  (let [montantes (montantes-discretos dados)]
+    (map-indexed #(vector (inc %1) (:montante %2)) montantes)))
+
 ; cdi ~ selic
-(def cdi 11.5)
+(def cdi 20.5)
 (defn percentual-cdi-diario [taxa]
   (/ (* cdi (/ taxa 100)) 365.0))
 
@@ -89,7 +106,7 @@
 (def aplicacao {:taxa 1.00 :montante 282000.00 :tempo 1})
 (def aporte {:taxa 0.4167 :montante 500.00 :tempo 1})
 (def aporte {:taxa 0.7 :montante 100.00 :tempo 1})
-(def lca {:taxa (percentual-cdi-diario 91) :montante 30000 :tempo (* 361) :ir sem-ir :taxaMontante 0 :tipo "lca"})
+(def lca {:taxa (percentual-cdi-diario 91) :montante 30000 :tempo (* 1081) :ir sem-ir :taxaMontante 0 :tipo "lca"})
 (def cdb-diario {:taxa (percentual-cdi-diario 101) :montante 50000.00 :tempo (* 60) :ir ir :taxaMontante 0 :tipo "cdb-diario"})
 (def cdb2anos {:taxa (percentual-cdi-diario 114) :montante 30000.00 :tempo (* 725) :ir ir :taxaMontante 0 :tipo "cdb2anos"})
 (def cdb1ano {:taxa (percentual-cdi-diario 110) :montante 30000.00 :tempo (* 361) :ir ir :taxaMontante 0 :tipo "cdb1ano"})
