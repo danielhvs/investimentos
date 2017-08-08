@@ -183,4 +183,4 @@
 
 
 
-;; pegar taxas CDI aqui: http://www3.bcb.gov.br/selic/consulta/taxaSelic.do
+;; pegar taxas selic aqui: http://www.bcb.gov.br/htms/selic/selicdiarios.asp
