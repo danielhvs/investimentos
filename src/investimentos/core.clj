@@ -111,6 +111,8 @@
 (def aporte {:taxa 0.7 :moNtante 100.00 :tempo 1})
 (def lca {:taxa cdi-maio-2017 :montante 10000 :tempo (* 66) :ir sem-ir :taxaMontante 0 :tipo "lca"})
 (def cdb-diario {:taxa (percentual-cdi-diario 101) :montante 50000.00 :tempo (* 60) :ir ir :taxaMontante 0 :tipo "cdb-diario"})
+(def cdb-ipca {:taxa (+ 0.059 0.04) :montante 10000.00 :tempo (* 1) :ir ir :taxaMontante 0 :tipo "cdb2anos"})
+(def cdb1ano {:taxa (percentual-cdi-diario 110) :montante 30000.00 :tempo (* 361) :ir ir :taxaMontante 0 :tipo "cdb1ano"})
 (def cdb2anos {:taxa (percentual-cdi-diario 114) :montante 30000.00 :tempo (* 725) :ir ir :taxaMontante 0 :tipo "cdb2anos"})
 (def cdb1ano {:taxa (percentual-cdi-diario 110) :montante 30000.00 :tempo (* 361) :ir ir :taxaMontante 0 :tipo "cdb1ano"})
 (def cdb6meses {:taxa (percentual-cdi-diario 110) :montante 5000.00 :tempo (* 180) :ir ir :taxaMontante 0 :tipo "cdb6meses"})
@@ -179,3 +181,6 @@
 ;  (calcula-tx-eq cdb6meses)
 ;  (tx-eq-menor-maior 6.84 2)
 
+
+
+;; pegar taxas CDI aqui: http://www3.bcb.gov.br/selic/consulta/taxaSelic.do
