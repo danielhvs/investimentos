@@ -1,4 +1,4 @@
-# investimentos
+# Investimentos CDB, LCA e tesouro
 
-Buscar melhores investimentos nas corretoras de acordo com perfil de investimento escolhido.
+Usando clojure para aprender sobre investimentos e calcular imposto de renda (CDB), taxas (tesouro direto) e juros (CDB, LCI, LCA, tesouro).
 
